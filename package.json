@@ -24,13 +24,13 @@
     "clean": "rimraf build dist",
     "start": "npm run clean && tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wds\"",
     "build": "npm run clean && tsc && rollup -c",
-    "prepublish": "npm run clean && tsc",
+    "test": "playwright test",
     "lint": "eslint --ext .ts,.html . --ignore-path .gitignore && prettier \"**/*.ts\" --check --ignore-path .gitignore",
     "format": "eslint --ext .ts,.html . --fix --ignore-path .gitignore && prettier \"**/*.ts\" --write --ignore-path .gitignore"
   },
-  "dependencies": {},
   "devDependencies": {
     "@open-wc/eslint-config": "^9.2.1",
+    "@playwright/test": "^1.38.0",
     "@rollup/plugin-terser": "^0.4.3",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",

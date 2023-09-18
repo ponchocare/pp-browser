@@ -93,6 +93,14 @@ To automatically fix linting and formatting errors, run
 npm run format
 ```
 
+### Testing the project
+
+To test the project for bugs, run
+
+```bash
+npm run test
+```
+
 ### Tooling configs
 
 For most of the tools, the configuration is in the `package.json` to reduce the amount of files in the project.
