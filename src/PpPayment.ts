@@ -6,8 +6,15 @@ import {
   buildStyle,
 } from './utils';
 
-const PONCHO_PAY = 'https://pay.ponchopay.com/api/integration/generic/initiate';
-const ATTRIBUTES = ['token', 'metadata', 'urn', 'amount', 'email', 'note'];
+const ENDPOINT = '/api/integration/generic/initiate';
+const ATTRIBUTES = [
+  'token',
+  'metadata',
+  'urn',
+  'amount',
+  'email',
+  'note',
+] as const;
 const STYLES = [
   'width: 100%',
   'background-color: #02C2A0',
@@ -45,13 +52,17 @@ export class PpPayment extends HTMLElement {
   }
 
   private redrawContents(): void {
+    let base = this.base;
+    while (base.slice(-1) === '/') base = base.slice(0, -1);
+    if (base === '') base = 'https://pay.ponchopay.com';
+
     this.sr.replaceChildren();
     this.sr.appendChild(
       buildForm(
-        PONCHO_PAY,
-        ...ATTRIBUTES.filter(
-          name => (this.getAttribute(name) ?? '') !== ''
-        ).map(name => buildHiddenInput(name, this.getAttribute(name)!)),
+        `${base}${ENDPOINT}`,
+        ...ATTRIBUTES.filter(name => this[name] !== '').map(name =>
+          buildHiddenInput(name, this[name])
+        ),
         buildStyle(
           `button { ${STYLES.join(';')} ${this.getAttribute(
             'style'
@@ -60,6 +71,14 @@ export class PpPayment extends HTMLElement {
         buildButton(buildSlot('Pay with PonchoPay'))
       )
     );
+  }
+
+  public set base(value: string) {
+    this.setAttribute('base', value);
+  }
+
+  public get base(): string {
+    return this.getAttribute('base') ?? '';
   }
 
   public set token(value: string) {
@@ -115,6 +134,6 @@ export class PpPayment extends HTMLElement {
   }
 
   public static get observedAttributes() {
-    return ATTRIBUTES;
+    return [...ATTRIBUTES, 'base'];
   }
 }
