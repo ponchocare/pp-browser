@@ -1,12 +1,3 @@
-// <pp-payment
-//   id="pp"
-//   token="N6a1LXQSJsF/WIV5mUK8fi+vL9jn5qt469TqmlfPU4Cc9zjOLsYQYjQ/GmhiVyRx"
-//   metadata="id"
-//   urn="2609216"
-//   amount="1234"
-//   email="info@ponchopay.com"
-// ></pp-payment>
-
 import { Locator } from '@playwright/test';
 
 const DEFAULTS = {
@@ -51,5 +42,13 @@ export class Component {
 
   public async getNote(): Promise<string | undefined> {
     return await this.locator.locator(`input[name="note"]`).inputValue();
+  }
+
+  public async hasExpiry(): Promise<boolean> {
+    return (await this.locator.locator(`input[name="expiry"]`).count()) > 0;
+  }
+
+  public async getExpiry(): Promise<string | undefined> {
+    return await this.locator.locator(`input[name="expiry"]`).inputValue();
   }
 }

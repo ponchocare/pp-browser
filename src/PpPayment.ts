@@ -14,6 +14,7 @@ const ATTRIBUTES = [
   'amount',
   'email',
   'note',
+  'expiry',
 ] as const;
 const STYLES = [
   'width: 100%',
@@ -127,6 +128,17 @@ export class PpPayment extends HTMLElement {
 
   public get note(): string {
     return this.getAttribute('note') ?? '';
+  }
+
+  public set expiry(value: Date | string) {
+    this.setAttribute(
+      'expiry',
+      value instanceof Date ? value.toISOString() : value
+    );
+  }
+
+  public get expiry(): string {
+    return this.getAttribute('expiry') ?? '';
   }
 
   public attributeChangedCallback(): void {

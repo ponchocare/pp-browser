@@ -41,7 +41,7 @@ The web component can be used by declaring it in HTML like this:
 <pp-payment {properties}>{text}</pp-payment>
 ```
 
-The following the list of accepted properties (please, refer to the [official documentation](https://ponchocare.notion.site/PonchoPay-API-integration-04bc3f5220ff4028b0078793bfc03abc) for their meaning):
+The following the list of accepted properties (please, refer to the [official documentation](https://pay.ponchopay.com/api/docs) for their meaning):
 
 | Name     | Mandatory |
 | -------- | --------- |
@@ -51,6 +51,7 @@ The following the list of accepted properties (please, refer to the [official do
 | amount   | Yes       |
 | email    | Yes       |
 | note     | No        |
+| expiry   | No        |
 
 The component's text is optional being "Pay with PonchoPay" the default text. Feel free to change it as you see fit.
 
