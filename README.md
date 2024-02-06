@@ -12,7 +12,6 @@ You can import the compiled file directly from our servers:
 
 ```html
 <script
-  type="module"
   src="https://pay.ponchopay.com/api/integration/generic/asset/pp-browser.<version>.min.js"
 ></script>
 ```
