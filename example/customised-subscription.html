@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Basket</title>
+    <script type="module" src="dist/src/index.js"></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f5f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+
+      .basket-card {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        width: 100%;
+      }
+
+      .basket-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        text-align: center;
+        color: #333;
+      }
+
+      .order-info {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .item-name {
+        font-weight: 500;
+        color: #444;
+      }
+
+      .item-price {
+        color: #444;
+      }
+
+      pp-subscription::part(button) {
+        background-color: #e66386;
+        font-weight: bold;
+      }
+
+      pp-subscription::part(error) {
+        color: #63e6c3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="basket-card">
+      <div class="basket-title">Your Basket</div>
+      <div class="order-info">Order number: <strong>#78991</strong></div>
+
+      <div class="item">
+        <div class="item-name">Science (1 day per week)</div>
+        <div class="item-price">£25.00/week</div>
+      </div>
+
+      <div class="item">
+        <div class="item-name">Lab coat</div>
+        <div class="item-price">£8.99</div>
+      </div>
+
+      <pp-subscription
+        base="https://demo.ponchopay.com/"
+        amount="2500"
+        metadata="subscription:78991"
+        urn="🏠"
+        token="🤫"
+        note="Example subscription"
+        email="tommy@server.com"
+        repetition.granularity="weekly"
+        repetition.period="1"
+        repetition.weekdays="friday"
+        additional_one_time_payment.amount="899"
+        additional_one_time_payment.metadata="payment:78991"
+        additional_one_time_payment.note="Example additional payment"
+        >Pay and subscribe</pp-subscription
+      >
+    </div>
+  </body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Basket - Order #67651</title>
+    <script type="module" src="dist/src/index.js"></script>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f8f9fa;
+        margin: 0;
+        padding: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+
+      .basket {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        width: 360px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .basket h2 {
+        margin-top: 0;
+        font-size: 1.5rem;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 0.5rem;
+      }
+
+      .order-number {
+        font-size: 0.95rem;
+        color: #888;
+        margin-bottom: 1rem;
+      }
+
+      .item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 1rem 0;
+      }
+
+      .item-name {
+        font-weight: 500;
+      }
+
+      .item-price {
+        color: #666;
+      }
+
+      .total {
+        border-top: 2px solid #eee;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        padding-top: 1rem;
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="basket">
+      <h2>Your Basket</h2>
+      <div class="order-number">Order #67651</div>
+
+      <div class="item">
+        <span class="item-name">Treasure hunt</span>
+        <span class="item-price">£14.50</span>
+      </div>
+      <div class="item">
+        <span class="item-name">Arts & Crafts</span>
+        <span class="item-price">£7.99</span>
+      </div>
+      <div class="item">
+        <span class="item-name">Mini Mozart</span>
+        <span class="item-price">£20.25</span>
+      </div>
+      <div class="total">
+        <span>Total</span>
+        <span>£42.74</span>
+      </div>
+      <pp-payment
+        base="https://demo.ponchopay.com/"
+        amount="4274"
+        metadata="order:67651"
+        urn="🏠"
+        token="🤫"
+        note="Example payment"
+        email="tommy@server.com"
+      ></pp-payment>
+    </div>
+  </body>
+</html>

@@ -11,4 +11,5 @@
 # build
 /_site/
 /dist/
+/example/dist/
 /build/
