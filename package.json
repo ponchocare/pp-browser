@@ -24,13 +24,12 @@
     "clean": "rimraf build dist",
     "start": "npm run clean && tsc && concurrently -k -r \"tsc --watch --preserveWatchOutput\" \"wds\"",
     "build": "npm run clean && tsc && rollup -c",
-    "test": "playwright test",
+    "test": "vitest run",
     "lint": "eslint --ext .ts,.html . --ignore-path .gitignore && prettier \"**/*.ts\" --check --ignore-path .gitignore",
     "format": "eslint --ext .ts,.html . --fix --ignore-path .gitignore && prettier \"**/*.ts\" --write --ignore-path .gitignore"
   },
   "devDependencies": {
     "@open-wc/eslint-config": "^9.2.1",
-    "@playwright/test": "^1.38.0",
     "@rollup/plugin-terser": "^0.4.3",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
@@ -39,12 +38,14 @@
     "eslint": "^8.31.0",
     "eslint-config-prettier": "^8.3.0",
     "husky": "^4.3.8",
+    "jsdom": "^26.0.0",
     "lint-staged": "^10.5.4",
     "prettier": "^2.4.1",
     "rimraf": "^5.0.1",
     "rollup": "^3.29.0",
     "tslib": "^2.3.1",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "vitest": "^3.1.1"
   },
   "repository": {
     "type": "git",
@@ -78,7 +79,9 @@
         "error"
       ],
       "import/no-unresolved": "off",
-      "import/extensions": "off"
+      "import/extensions": "off",
+      "lines-between-class-members": "off",
+      "wc/no-constructor-params": "off"
     }
   },
   "prettier": {
