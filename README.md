@@ -16,11 +16,11 @@ You can import the compiled file directly from our servers:
 ></script>
 ```
 
-After this HTML declaration, you will be able to use the web component.
+After this HTML declaration, you will be able to use the web components.
 
 ### NPM installation
 
-You can install the module from `npm`:
+You can install the module from `npm` (or the package manager of your preference):
 
 ```bash
 npm i @ponchopay/pp-browser
@@ -32,36 +32,20 @@ After this command, you can import the web componet like this:
 import '@ponchopay/pp-browser';
 ```
 
-## Using the web component
+## Using the web components
 
-The web component can be used by declaring it in HTML like this:
-
-```html
-<pp-payment {properties}>{text}</pp-payment>
-```
-
-The following the list of accepted properties (please, refer to the [official documentation](https://pay.ponchopay.com/api/docs) for their meaning):
-
-| Name     | Mandatory |
-| -------- | --------- |
-| token    | Yes       |
-| metadata | Yes       |
-| urn      | Yes       |
-| amount   | Yes       |
-| email    | Yes       |
-| note     | No        |
-| expiry   | No        |
-
-The component's text is optional being "Pay with PonchoPay" the default text. Feel free to change it as you see fit.
+This library injects 2 new HTML elements:
+- [pp-payment](https://github.com/ponchocare/pp-browser/blob/master/docs/pp-payment.md): This web component simplifies the payment initialisation directly from the browser.
+- [pp-subscription](https://github.com/ponchocare/pp-browser/blob/master/docs/pp-subscription.md): This web component simplifies the subscription initialisation directly from the browser.
 
 ## Considerations
 
-Unfortunately, this web component required `HTMLElement` class to exist which means that it is not suitable for Server Side Rendering applications.
+Unfortunately, these web components require the `HTMLElement` class to exist which means that it is not suitable for Server Side Rendering (SSR) applications.
 There are, however, some techniques that can be used to mitigate this.
 
 ### SvelteKit
 
-When using SvelteKit, the component import can be pushed to the `onMount` event:
+When using SvelteKit, the components' import can be pushed to the `onMount` event:
 
 ```svelte
 <script>
@@ -75,7 +59,7 @@ When using SvelteKit, the component import can be pushed to the `onMount` event:
 <pp-payment>It worked!</pp-payment>
 ```
 
-Alternatively, the route can be made non-ssr by exporting [`export const ssr = false;`](https://kit.svelte.dev/docs/page-options#ssr) in the loader file.
+Alternatively, the route can be made non-ssr by exporting [`export const ssr = false;`](https://kit.svelte.dev/docs/page-options#ssr) in the `+page.js` file.
 
 ## Development
 
@@ -105,10 +89,11 @@ npm run test
 
 For most of the tools, the configuration is in the `package.json` to reduce the amount of files in the project.
 
-## Local Demo with `web-dev-server`
+## Local Demo with `vite`
 
 ```bash
-npm start
+npm run start
 ```
 
-To run a local development server that serves the basic demo located in `demo/index.html`
+This command will initiate a development server and open the `example/index.html` page automatically.
+Feel free to browse this page to find examples on how to use the components.
