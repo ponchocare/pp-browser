@@ -18,7 +18,7 @@ Attributes:
 | ----------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------ |
 | token                                                       | Yes       | Authentication token securely computed in your servers from the integration key      |
 | urn                                                         | Yes       | The location Unique Reference Number                                                 |
-| amount                                                      | Yes       | The payable amount in pences for each generated payment                              |
+| amount                                                      | Yes       | The payable amount in pence for each generated payment                              |
 | metadata                                                    | Yes       | Any string you want to keep attached to the subscription                             |
 | email                                                       | Yes       | The user email                                                                       |
 | note                                                        | No        | Any note to be attached to the subscription                                          |
