@@ -33,7 +33,7 @@ A date value must be an ISO8601 string.
 
 Please, note that if a mandatory field is not provided, the component will refuse to initiate the payment and, instead,
 it will show the error message `Some attributes are incorrect. Please, review them.`. If you don't want this message
-to be visible, please, take a look at the customisation section to hide it (please, bear in mind that hidding the message
+to be visible, take a look at the customisation section to hide it (please, bear in mind that hiding the message
 will not make the component to work if the data is invalid).
 
 ## Customisation
