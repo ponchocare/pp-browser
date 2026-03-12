@@ -40,6 +40,13 @@ export abstract class PpForm extends HTMLElement {
         if (this.hasAttribute(attribute)) {
           const attr = this.getAttribute(attribute)!;
 
+          if (attribute === 'line_items') {
+            const lineItemInputs = PpForm.createLineItemsFields(attr);
+
+            lineItemInputs.forEach(input => form.appendChild(input));
+            return;
+          }
+
           let name = formatName(attribute);
           let values = attr.length > 0 ? [attr] : [];
           if (collection) {
@@ -66,6 +73,27 @@ export abstract class PpForm extends HTMLElement {
       button.appendChild(slot);
       form.appendChild(button);
     }
+  }
+
+  private static createLineItemsFields(lineItems: string): HTMLInputElement[] {
+    const inputs: HTMLInputElement[] = [];
+
+    const items = JSON.parse(lineItems);
+    if (!Array.isArray(items)) {
+      return inputs;
+    }
+
+    items.forEach((item, index) => {
+      Object.entries(item).forEach(([key, value]) => {
+        const itemInput = document.createElement('input');
+        itemInput.type = 'hidden';
+        itemInput.name = `line_items[${index}][${key}]`;
+        itemInput.value = String(value);
+        inputs.push(itemInput);
+      });
+    });
+
+    return inputs;
   }
 
   private showErrorMessage(): void {

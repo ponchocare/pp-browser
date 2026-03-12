@@ -9,6 +9,7 @@ const fields = {
   note: optional(single()),
   expiry: optional(single()),
   'constraints.minimum_card_amount': optional(single()),
+  line_items: optional(single()),
 };
 
 export class PpPayment extends PpForm {
