@@ -67,45 +67,40 @@
   <body>
     <div class="basket">
       <h2>Your Basket</h2>
-      <div class="order-number">Order #67651</div>
+      <div class="order-number">Order #11651</div>
 
       <div class="item">
-        <span class="item-name">Treasure hunt</span>
-        <span class="item-price">£14.50</span>
+        <span class="item-name">A pen</span>
+        <span class="item-price">£2.00</span>
       </div>
       <div class="item">
         <span class="item-name">Arts & Crafts</span>
-        <span class="item-price">£7.99</span>
-      </div>
-      <div class="item">
-        <span class="item-name">Mini Mozart</span>
-        <span class="item-price">£20.25</span>
+        <span class="item-price">£0.40</span>
       </div>
       <div class="total">
         <span>Total</span>
-        <span>£42.74</span>
+        <span>£2.40</span>
       </div>
-
       <pp-payment
         base="https://demo.ponchopay.com/"
-        amount="4274"
-        metadata="order:67651"
+        amount="240"
+        metadata="order:11651"
         urn="🏠"
         token="🤫"
         note="Example payment"
         email="tommy@server.com"
-        constraints.minimum_card_amount="100"
-        line_items=' [{
-            "quantity": 1,
-            "amount": 4000,
-            "description": "First item"
-        },
-        {
-            "quantity": 1,
-            "amount": 274,
-            "description": "Second item"
-        }
-    ]'
+        line_items='[
+          {
+              "quantity": 1,
+              "amount": 200,
+              "description": "A pen"
+          },
+          {
+              "quantity": 1,
+              "amount": 40,
+              "description": "Arts & Crafts"
+          }
+      ]'
       ></pp-payment>
     </div>
   </body>
