@@ -60,23 +60,21 @@ export abstract class PpForm extends HTMLElement {
             input.value = value;
             form.appendChild(input);
           });
-        } else if (attrName.includes('.')) {
-          const baseName = attrName.split('.')[0];
+        }
+        // Handle dot notation attributes
+        else if (attrName.includes('.')) {
+          const parts = attrName.split('.');
 
-          if (!knownFields.has(baseName)) {
-            const parts = attrName.split('.');
-            const formattedBase = formatName(parts[0]);
-            const nestedKeys = parts.slice(1);
+          const formattedBase = formatName(parts[0]);
+          const nestedKeys = parts.slice(1);
 
-            // Convert to bracket notation: foo.0.bar -> foo[0][bar]
-            const fieldName = `${formattedBase}[${nestedKeys.join('][')}]`;
-
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = fieldName;
-            input.value = attrValue;
-            form.appendChild(input);
-          }
+          // Convert to bracket notation: foo.0.bar -> foo[0][bar]
+          const fieldName = `${formattedBase}[${nestedKeys.join('][')}]`;
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = fieldName;
+          input.value = attrValue;
+          form.appendChild(input);
         }
       });
 
