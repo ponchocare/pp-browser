@@ -89,18 +89,12 @@
         token="🤫"
         note="Example payment"
         email="tommy@server.com"
-        line_items='[
-          {
-              "quantity": 1,
-              "amount": 200,
-              "description": "A pen"
-          },
-          {
-              "quantity": 1,
-              "amount": 40,
-              "description": "Arts & Crafts"
-          }
-      ]'
+        line_items.0.quantity="1"
+        line_items.0.amount="200"
+        line_items.0.description="First item"
+        line_items.1.quantity="1"
+        line_items.1.amount="40"
+        line_items.1.description="Second item"
       ></pp-payment>
     </div>
   </body>

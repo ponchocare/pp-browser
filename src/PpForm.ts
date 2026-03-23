@@ -36,22 +36,21 @@ export abstract class PpForm extends HTMLElement {
       form.action = joinPaths(base, this.path);
       form.replaceChildren();
 
-      Object.entries(this.fields).forEach(([attribute, { collection }]) => {
-        if (this.hasAttribute(attribute)) {
-          const attr = this.getAttribute(attribute)!;
+      const knownFields = new Set(Object.keys(this.fields));
 
-          if (attribute === 'line_items') {
-            const lineItemInputs = PpForm.createLineItemsFields(attr);
+      Array.from(this.attributes).forEach(attr => {
+        const attrName = attr.name;
+        const attrValue = attr.value;
 
-            lineItemInputs.forEach(input => form.appendChild(input));
-            return;
-          }
+        // Check if this is a known field
+        if (knownFields.has(attrName)) {
+          const { collection } = this.fields[attrName];
 
-          let name = formatName(attribute);
-          let values = attr.length > 0 ? [attr] : [];
+          let name = formatName(attrName);
+          let values = attrValue.length > 0 ? [attrValue] : [];
           if (collection) {
             name = `${name}[]`;
-            values = split(attr, ',');
+            values = split(attrValue, ',');
           }
 
           values.forEach(value => {
@@ -61,6 +60,23 @@ export abstract class PpForm extends HTMLElement {
             input.value = value;
             form.appendChild(input);
           });
+        } else if (attrName.includes('.')) {
+          const baseName = attrName.split('.')[0];
+
+          if (!knownFields.has(baseName)) {
+            const parts = attrName.split('.');
+            const formattedBase = formatName(parts[0]);
+            const nestedKeys = parts.slice(1);
+
+            // Convert to bracket notation: foo.0.bar -> foo[0][bar]
+            const fieldName = `${formattedBase}[${nestedKeys.join('][')}]`;
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = fieldName;
+            input.value = attrValue;
+            form.appendChild(input);
+          }
         }
       });
 
@@ -73,27 +89,6 @@ export abstract class PpForm extends HTMLElement {
       button.appendChild(slot);
       form.appendChild(button);
     }
-  }
-
-  private static createLineItemsFields(lineItems: string): HTMLInputElement[] {
-    const inputs: HTMLInputElement[] = [];
-
-    const items = JSON.parse(lineItems);
-    if (!Array.isArray(items)) {
-      return inputs;
-    }
-
-    items.forEach((item, index) => {
-      Object.entries(item).forEach(([key, value]) => {
-        const itemInput = document.createElement('input');
-        itemInput.type = 'hidden';
-        itemInput.name = `line_items[${index}][${key}]`;
-        itemInput.value = String(value);
-        inputs.push(itemInput);
-      });
-    });
-
-    return inputs;
   }
 
   private showErrorMessage(): void {

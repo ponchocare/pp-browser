@@ -14,17 +14,17 @@ Make sure you have imported the library in the HTML document. Then, add the elem
 
 Attributes:
 
-| Attribute                       | Mandatory | Description                                                                        |
-| ------------------------------- | --------- | ---------------------------------------------------------------------------------- |
-| token                           | Yes       | Authentication token securely computed in your servers from the integration key    |
-| metadata                        | Yes       | Any string you want to keep attached to the payment                                |
-| urn                             | Yes       | The location Unique Reference Number                                               |
-| amount                          | Yes       | The payable amount in pences                                                       |
-| email                           | Yes       | The user email                                                                     |
-| note                            | No        | Any note to be attached to the payment                                             |
-| expiry                          | No        | The date you want the payment to expire (Check `DateValue` details)                |
-| constraints.minimum_card_amount | No        | Minimum amount that must be processed with a card payment                          |
-| line_items                      | No        | JSON array of line items with quantity, amount, and description. Check `LineItems` |
+| Attribute                       | Mandatory | Description                                                                     |
+| ------------------------------- | --------- | ------------------------------------------------------------------------------- |
+| token                           | Yes       | Authentication token securely computed in your servers from the integration key |
+| metadata                        | Yes       | Any string you want to keep attached to the payment                             |
+| urn                             | Yes       | The location Unique Reference Number                                            |
+| amount                          | Yes       | The payable amount in pences                                                    |
+| email                           | Yes       | The user email                                                                  |
+| note                            | No        | Any note to be attached to the payment                                          |
+| expiry                          | No        | The date you want the payment to expire (Check `DateValue` details)             |
+| constraints.minimum_card_amount | No        | Minimum amount that must be processed with a card payment                       |
+| line_items.{index}.{field}      | No        | Line item fields using dot notation. Check `LineItems`                          |
 
 DateValue:
 
@@ -32,7 +32,12 @@ A date value must be an ISO8601 string.
 
 LineItems:
 
-Line items must be provided as a JSON string containing an array of objects. Each line item object should have:
+Line items must be provided using dot notation with the pattern `line_items.{index}.{field}`, where:
+
+- `{index}` is the zero-based index of the line item (0, 1, 2, ...)
+- `{field}` is one of: `quantity`, `amount`, or `description`
+
+Each line item should have:
 
 - `quantity` (number): The quantity of the item
 - `amount` (number): The amount in pences for this line item
@@ -42,10 +47,20 @@ Example:
 
 ```html
 <pp-payment
-  line_items='[{"quantity": 1, "amount": 4000, "description": "First item"}, {"quantity": 2, "amount": 274, "description": "Second item"}]'
-  ...other
-  attributes
-></pp-payment>
+  token="..."
+  amount="4274"
+  metadata="order-123"
+  urn="EY1068326"
+  email="customer@example.com"
+  line_items.0.quantity="1"
+  line_items.0.amount="4000"
+  line_items.0.description="First item"
+  line_items.1.quantity="1"
+  line_items.1.amount="274"
+  line_items.1.description="Second item"
+>
+  Pay Now
+</pp-payment>
 ```
 
 **Note:** The sum of all line item amounts must equal the total `amount` attribute value. In the example above, 4000 + 274 = 4274 pences.
