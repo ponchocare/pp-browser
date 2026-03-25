@@ -14,17 +14,17 @@ Make sure you have imported the library in the HTML document. Then, add the elem
 
 Attributes:
 
-| Attribute                       | Mandatory | Description                                                                     |
-| ------------------------------- | --------- | ------------------------------------------------------------------------------- |
-| token                           | Yes       | Authentication token securely computed in your servers from the integration key |
-| metadata                        | Yes       | Any string you want to keep attached to the payment                             |
-| urn                             | Yes       | The location Unique Reference Number                                            |
-| amount                          | Yes       | The payable amount in pences                                                    |
-| email                           | Yes       | The user email                                                                  |
-| note                            | No        | Any note to be attached to the payment                                          |
-| expiry                          | No        | The date you want the payment to expire (Check `DateValue` details)             |
-| constraints.minimum_card_amount | No        | Minimum amount that must be processed with a card payment                       |
-| line_items.{index}.{field}      | No        | Line item fields using dot notation. Check `LineItems`                          |
+| Attribute                       | Mandatory | Description                                                                          |
+| ------------------------------- | --------- | ------------------------------------------------------------------------------------ |
+| token                           | Yes       | Authentication token securely computed in your servers from the integration key      |
+| metadata                        | Yes       | Any string you want to keep attached to the payment                                  |
+| urn                             | Yes       | The location Unique Reference Number                                                 |
+| amount                          | Yes       | The payable amount in pences                                                         |
+| email                           | Yes       | The user email                                                                       |
+| note                            | No        | Any note to be attached to the payment                                               |
+| expiry                          | No        | The date you want the payment to expire (Check `DateValue` details)                  |
+| constraints.minimum_card_amount | No        | Minimum amount that must be processed with a card payment                            |
+| line_items.{index}.{field}      | No        | An array of line items describing the products you are paying for. Check `LineItems` |
 
 DateValue:
 
@@ -37,11 +37,11 @@ Line items must be provided using dot notation with the pattern `line_items.{ind
 - `{index}` is the zero-based index of the line item (0, 1, 2, ...)
 - `{field}` is one of: `quantity`, `amount`, or `description`
 
-Each line item should have:
+Each line item must have all three required fields:
 
-- `quantity` (number): The quantity of the item
-- `amount` (number): The amount in pences for this line item
-- `description` (string): A description of the item
+- `quantity` (string, required): The quantity of the item
+- `amount` (string, required): The amount in pences for this line item
+- `description` (string, required): A description of the item
 
 Example:
 
