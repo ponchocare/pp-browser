@@ -36,21 +36,29 @@ export abstract class PpForm extends HTMLElement {
       form.action = joinPaths(base, this.path);
       form.replaceChildren();
 
-      const knownFields = new Set(Object.keys(this.fields));
+      Object.entries(this.fields).forEach(([attribute, { type }]) => {
+        if (type === 'array') {
+          const matchingAttributes = Array.from(this.attributes).filter(attr =>
+            attr.name.startsWith(`${attribute}.`)
+          );
 
-      Array.from(this.attributes).forEach(attr => {
-        const attrName = attr.name;
-        const attrValue = attr.value;
+          matchingAttributes.forEach(attr => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = attr.name;
+            input.value = attr.value;
+            form.appendChild(input);
+          });
+        }
 
-        // Check if this is a known field
-        if (knownFields.has(attrName)) {
-          const { collection } = this.fields[attrName];
+        if (this.hasAttribute(attribute)) {
+          const attr = this.getAttribute(attribute)!;
 
-          let name = formatName(attrName);
-          let values = attrValue.length > 0 ? [attrValue] : [];
-          if (collection) {
+          let name = formatName(attribute);
+          let values = attr.length > 0 ? [attr] : [];
+          if (type === 'multiple') {
             name = `${name}[]`;
-            values = split(attrValue, ',');
+            values = split(attr, ',');
           }
 
           values.forEach(value => {
@@ -60,21 +68,6 @@ export abstract class PpForm extends HTMLElement {
             input.value = value;
             form.appendChild(input);
           });
-        }
-        // Handle dot notation attributes
-        else if (attrName.includes('.')) {
-          const parts = attrName.split('.');
-
-          const formattedBase = formatName(parts[0]);
-          const nestedKeys = parts.slice(1);
-
-          // Convert to bracket notation: foo.0.bar -> foo[0][bar]
-          const fieldName = `${formattedBase}[${nestedKeys.join('][')}]`;
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = fieldName;
-          input.value = attrValue;
-          form.appendChild(input);
         }
       });
 
@@ -168,25 +161,59 @@ export abstract class PpForm extends HTMLElement {
     this.shadowRoot!.querySelector('form')?.requestSubmit();
   }
 
-  public checkValidity(): boolean {
-    return Object.entries(this.fields).every(([attribute, { required }]) => {
-      if (required === true) {
-        return this.isAttributeSet(attribute);
+  private validateField(fieldPath: string, field: Field): boolean {
+    if (field.required === true) {
+      return this.isAttributeSet(fieldPath);
+    }
+
+    if (Array.isArray(field.required)) {
+      const [dependant, value] = field.required;
+
+      if (
+        (value === true || this.getAttribute(dependant) === value) &&
+        this.isAttributeSet(dependant)
+      ) {
+        return this.isAttributeSet(fieldPath);
       }
+    }
 
-      if (Array.isArray(required)) {
-        const [dependant, value] = required;
+    return true;
+  }
 
-        if (
-          (value === true || this.getAttribute(dependant) === value) &&
-          this.isAttributeSet(dependant)
-        ) {
-          return this.isAttributeSet(attribute);
-        }
-      }
+  public checkArrayIsValid(attribute: string, field: Field): boolean {
+    const matchingAttributes = Array.from(this.attributes).filter(attr =>
+      attr.name.startsWith(`${attribute}.`)
+    );
 
-      return true;
+    const indexes = matchingAttributes.map(attr => {
+      const match = attr.name.match(new RegExp(`^${attribute}\\.(\\d+)\\.`));
+      return match ? parseInt(match[1], 10) : null;
     });
+
+    const uniqueIndexes = Array.from(new Set(indexes));
+
+    return uniqueIndexes.every(index => {
+      return Object.entries(field.schema!).every(([key, subField]) => {
+        const fullPath = `${attribute}.${index}.${key}`;
+        return this.validateField(fullPath, subField);
+      });
+    });
+  }
+
+  public checkValidity(): boolean {
+    return Object.entries(this.fields).every(
+      ([attribute, { type, schema, required }]) => {
+        if (type === 'array') {
+          return this.checkArrayIsValid(attribute, {
+            type,
+            schema,
+            required,
+          });
+        }
+
+        return this.validateField(attribute, { type, required, schema });
+      }
+    );
   }
 
   public static get observedAttributes() {

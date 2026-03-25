@@ -10,8 +10,9 @@
  *                            is a string, it also needs to match that value. Optional otherwise.
  */
 export type Field = {
-  collection: boolean;
+  type: 'single' | 'multiple' | 'array';
   required: boolean | [string, string | true];
+  schema?: Record<string, Field>;
 };
 
 /**
@@ -19,7 +20,7 @@ export type Field = {
  * Note: By default it makes the attribute optional. Use the other functions to change this.
  */
 export function single(): Field {
-  return { required: false, collection: false };
+  return { type: 'single', required: false };
 }
 
 /**
@@ -27,7 +28,7 @@ export function single(): Field {
  * Note: By default it makes the attribute optional. Use the other functions to change this.
  */
 export function multiple(): Field {
-  return { required: false, collection: true };
+  return { type: 'multiple', required: false };
 }
 
 /**
@@ -53,4 +54,8 @@ export function dependant(
   attribute: Field
 ): Field {
   return { ...attribute, required: [name, value] };
+}
+
+export function array(itemSchema: Record<string, Field>): Field {
+  return { type: 'array', required: false, schema: itemSchema };
 }
