@@ -39,9 +39,9 @@ Line items must be provided using dot notation with the pattern `line_items.{ind
 
 Each line item must have all three required fields:
 
-- `quantity` (string, required): The quantity of the item
-- `amount` (string, required): The amount in pences for this line item
-- `description` (string, required): A description of the item
+- `quantity` (required): The quantity of the item
+- `amount` (required): The amount in pences for this line item
+- `description` (required): A description of the item
 
 Example:
 
