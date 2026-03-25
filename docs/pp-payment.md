@@ -43,26 +43,6 @@ Each line item must have all three required fields:
 - `amount` (required): The amount in pences for this line item
 - `description` (required): A description of the item
 
-Example:
-
-```html
-<pp-payment
-  token="..."
-  amount="4274"
-  metadata="order-123"
-  urn="EY1068326"
-  email="customer@example.com"
-  line_items.0.quantity="1"
-  line_items.0.amount="4000"
-  line_items.0.description="First item"
-  line_items.1.quantity="1"
-  line_items.1.amount="274"
-  line_items.1.description="Second item"
->
-  Pay Now
-</pp-payment>
-```
-
 **Note:** The sum of all line item amounts must equal the total `amount` attribute value. In the example above, 4000 + 274 = 4274 pences.
 
 ### Validation
