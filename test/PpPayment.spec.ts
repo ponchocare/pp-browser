@@ -25,6 +25,7 @@ describe('PpPayment', () => {
     { attr: 'note', value: 'Order note' },
     { attr: 'expiry', value: new Date().toISOString() },
     { attr: 'constraints.minimum_card_amount', value: 34 },
+    { attr: 'line_items', value: '' },
   ])(
     'sends the form with the optional $attr attribute provided',
     ({ attr, value }) => {
@@ -50,6 +51,41 @@ describe('PpPayment', () => {
       expect(element.shadowRoot?.querySelector('div')).not.toBeNull();
 
       element.removeAttribute(attr);
+      expect(element.checkValidity()).toBe(false);
+      submit(element);
+      expect(element.shadowRoot?.querySelector('div')).not.toBeNull();
+    }
+  );
+
+  it('sends the form with optional line_items attributes provided', () => {
+    const element = createElement('payment', {
+      ...fields,
+      'line_items.0.quantity': '1',
+      'line_items.0.amount': fields.amount,
+      'line_items.0.description': 'First item',
+    });
+
+    expect(element.checkValidity()).toBe(true);
+    submit(element);
+    expect(element.shadowRoot?.querySelector('div')).toBeNull();
+  });
+
+  it.each([
+    ['line_items.0.quantity'],
+    ['line_items.0.amount'],
+    ['line_items.0.description'],
+  ])(
+    'prevents the form submission if %s is missing when line_items is provided',
+    missingField => {
+      const attrs = {
+        ...fields,
+        'line_items.0.quantity': '1',
+        'line_items.0.amount': fields.amount,
+        'line_items.0.description': 'First item',
+      };
+      delete (attrs as Record<string, unknown>)[missingField];
+
+      const element = createElement('payment', attrs);
       expect(element.checkValidity()).toBe(false);
       submit(element);
       expect(element.shadowRoot?.querySelector('div')).not.toBeNull();

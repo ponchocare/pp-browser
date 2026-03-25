@@ -28,6 +28,29 @@ export abstract class PpForm extends HTMLElement {
     return this.getAttributeWithFallback(name, '').length > 0;
   }
 
+  private static createInputsForField(
+    form: HTMLFormElement,
+    attributeName: string,
+    attributeValue: string,
+    fieldType: 'single' | 'multiple' | 'array'
+  ): void {
+    let name = formatName(attributeName);
+    let values = attributeValue.length > 0 ? [attributeValue] : [];
+
+    if (fieldType === 'multiple') {
+      name = `${name}[]`;
+      values = split(attributeValue, ',');
+    }
+
+    values.forEach(value => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    });
+  }
+
   private syncAttributes(): void {
     const form = this.shadowRoot!.querySelector('form');
     if (form) {
@@ -36,38 +59,33 @@ export abstract class PpForm extends HTMLElement {
       form.action = joinPaths(base, this.path);
       form.replaceChildren();
 
-      Object.entries(this.fields).forEach(([attribute, { type }]) => {
-        if (type === 'array') {
+      Object.entries(this.fields).forEach(([attribute, field]) => {
+        if (field.type === 'array') {
           const matchingAttributes = Array.from(this.attributes).filter(attr =>
             attr.name.startsWith(`${attribute}.`)
           );
 
           matchingAttributes.forEach(attr => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = attr.name;
-            input.value = attr.value;
-            form.appendChild(input);
+            const parts = attr.name.split('.');
+            const fieldName = parts[parts.length - 1];
+
+            const subField = field.schema?.[fieldName];
+            if (!subField) return;
+
+            PpForm.createInputsForField(
+              form,
+              attr.name,
+              attr.value,
+              subField.type
+            );
           });
+
+          return;
         }
 
         if (this.hasAttribute(attribute)) {
           const attr = this.getAttribute(attribute)!;
-
-          let name = formatName(attribute);
-          let values = attr.length > 0 ? [attr] : [];
-          if (type === 'multiple') {
-            name = `${name}[]`;
-            values = split(attr, ',');
-          }
-
-          values.forEach(value => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = name;
-            input.value = value;
-            form.appendChild(input);
-          });
+          PpForm.createInputsForField(form, attribute, attr, field.type);
         }
       });
 
@@ -192,12 +210,22 @@ export abstract class PpForm extends HTMLElement {
 
     const uniqueIndexes = Array.from(new Set(indexes));
 
-    return uniqueIndexes.every(index => {
-      return Object.entries(field.schema!).every(([key, subField]) => {
+    // If array is required and no items exist fail validation
+    if (field.required === true && uniqueIndexes.length === 0) {
+      return false;
+    }
+
+    // If no items exist but array is optional, validation passes
+    if (uniqueIndexes.length === 0) {
+      return true;
+    }
+
+    return uniqueIndexes.every(index =>
+      Object.entries(field.schema!).every(([key, subField]) => {
         const fullPath = `${attribute}.${index}.${key}`;
         return this.validateField(fullPath, subField);
-      });
-    });
+      })
+    );
   }
 
   public checkValidity(): boolean {
