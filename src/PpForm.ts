@@ -1,4 +1,4 @@
-import { formatName, joinPaths, split } from './utils.js';
+import { createInputsForField, joinPaths } from './utils.js';
 import { Field, mandatory, single } from './validation.js';
 
 const DEFAULT_BASE = 'https://pay.ponchopay.com/';
@@ -28,29 +28,6 @@ export abstract class PpForm extends HTMLElement {
     return this.getAttributeWithFallback(name, '').length > 0;
   }
 
-  private static createInputsForField(
-    form: HTMLFormElement,
-    attributeName: string,
-    attributeValue: string,
-    fieldType: 'single' | 'multiple' | 'array'
-  ): void {
-    let name = formatName(attributeName);
-    let values = attributeValue.length > 0 ? [attributeValue] : [];
-
-    if (fieldType === 'multiple') {
-      name = `${name}[]`;
-      values = split(attributeValue, ',');
-    }
-
-    values.forEach(value => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = name;
-      input.value = value;
-      form.appendChild(input);
-    });
-  }
-
   private syncAttributes(): void {
     const form = this.shadowRoot!.querySelector('form');
     if (form) {
@@ -72,12 +49,7 @@ export abstract class PpForm extends HTMLElement {
             const subField = field.schema?.[fieldName];
             if (!subField) return;
 
-            PpForm.createInputsForField(
-              form,
-              attr.name,
-              attr.value,
-              subField.type
-            );
+            createInputsForField(form, attr.name, attr.value, subField.type);
           });
 
           return;
@@ -85,7 +57,7 @@ export abstract class PpForm extends HTMLElement {
 
         if (this.hasAttribute(attribute)) {
           const attr = this.getAttribute(attribute)!;
-          PpForm.createInputsForField(form, attribute, attr, field.type);
+          createInputsForField(form, attribute, attr, field.type);
         }
       });
 

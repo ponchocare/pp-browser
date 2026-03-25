@@ -46,3 +46,29 @@ export function split(haystack: string, needle: string): string[] {
 
   return haystack.split(needle);
 }
+
+/**
+ * Creates hidden input elements for a field and appends them to the form
+ */
+export function createInputsForField(
+  form: HTMLFormElement,
+  attributeName: string,
+  attributeValue: string,
+  fieldType: 'single' | 'multiple' | 'array'
+): void {
+  let name = formatName(attributeName);
+  let values = attributeValue.length > 0 ? [attributeValue] : [];
+
+  if (fieldType === 'multiple') {
+    name = `${name}[]`;
+    values = split(attributeValue, ',');
+  }
+
+  values.forEach(value => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  });
+}
