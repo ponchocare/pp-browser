@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { randomUUID } from 'crypto';
 import { createElement, getAction, getInputValue, submit } from './helpers';
-
 import '../src/index';
+import { formatName } from '../src/utils';
 
 const base = 'https://some.base/url';
 const amount = '1234';
@@ -123,20 +123,19 @@ describe('PpPayment', () => {
   });
 
   it.each([
-    { attr: 'token', name: 'token' },
-    { attr: 'amount', name: 'amount' },
-    { attr: 'metadata', name: 'metadata' },
-    { attr: 'urn', name: 'urn' },
-    { attr: 'email', name: 'email' },
-    { attr: 'note', name: 'note' },
-    { attr: 'expiry', name: 'expiry' },
-    {
-      attr: 'constraints.minimum_card_amount',
-      name: 'constraints[minimum_card_amount]',
-    },
+    { attr: 'token' },
+    { attr: 'amount' },
+    { attr: 'metadata' },
+    { attr: 'urn' },
+    { attr: 'email' },
+    { attr: 'note' },
+    { attr: 'expiry' },
+    { attr: 'constraints.minimum_card_amount' },
+    { attr: 'line_items.0.amount' },
   ])(
-    'updates the $name value when the $attr attribute changes',
-    ({ attr, name }) => {
+    'updates the corresponding value when the $attr attribute changes',
+    ({ attr }) => {
+      const name = formatName(attr);
       const originalValue = randomUUID();
       const element = createElement('payment', {
         [attr]: originalValue,
@@ -150,4 +149,26 @@ describe('PpPayment', () => {
       expect(getInputValue(element, name)).toBe(newValue);
     }
   );
+
+  it.each([
+    { attr: 'token' },
+    { attr: 'amount' },
+    { attr: 'metadata' },
+    { attr: 'urn' },
+    { attr: 'email' },
+    { attr: 'note' },
+    { attr: 'expiry' },
+    { attr: 'constraints.minimum_card_amount' },
+    { attr: 'line_items.0.amount' },
+  ])('removes the $attr attribute ', ({ attr }) => {
+    const name = formatName(attr);
+    const originalValue = randomUUID();
+    const element = createElement('payment', {
+      [attr]: originalValue,
+    });
+    expect(getInputValue(element, name)).toBe(originalValue);
+
+    element.removeAttribute(attr);
+    expect(getInputValue(element, name)).toBeUndefined();
+  });
 });

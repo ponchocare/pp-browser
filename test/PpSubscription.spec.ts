@@ -7,8 +7,8 @@ import {
   getInputValues,
   submit,
 } from './helpers';
-
 import '../src/index';
+import { formatName } from '../src/utils';
 
 const base = 'https://some.base/url';
 const amount = '1234';
@@ -136,42 +136,28 @@ describe('PpSubscription', () => {
   });
 
   it.each([
-    { attr: 'token', name: 'token' },
-    { attr: 'amount', name: 'amount' },
-    { attr: 'metadata', name: 'metadata' },
-    { attr: 'urn', name: 'urn' },
-    { attr: 'email', name: 'email' },
-    { attr: 'note', name: 'note' },
-    { attr: 'repetition.granularity', name: 'repetition[granularity]' },
-    { attr: 'repetition.period', name: 'repetition[period]' },
-    { attr: 'repetition.day', name: 'repetition[day]' },
-    { attr: 'ending.condition', name: 'ending[condition]' },
-    { attr: 'ending.occurrences', name: 'ending[occurrences]' },
-    { attr: 'ending.date', name: 'ending[date]' },
-    { attr: 'ending.condition', name: 'ending[condition]' },
-    {
-      attr: 'additional_one_time_payment.amount',
-      name: 'additional_one_time_payment[amount]',
-    },
-    {
-      attr: 'additional_one_time_payment.metadata',
-      name: 'additional_one_time_payment[metadata]',
-    },
-    {
-      attr: 'additional_one_time_payment.note',
-      name: 'additional_one_time_payment[note]',
-    },
-    {
-      attr: 'additional_one_time_payment.expiry',
-      name: 'additional_one_time_payment[expiry]',
-    },
-    {
-      attr: 'additional_one_time_payment.constraints.minimum_card_amount',
-      name: 'additional_one_time_payment[constraints][minimum_card_amount]',
-    },
+    { attr: 'token' },
+    { attr: 'amount' },
+    { attr: 'metadata' },
+    { attr: 'urn' },
+    { attr: 'email' },
+    { attr: 'note' },
+    { attr: 'repetition.granularity' },
+    { attr: 'repetition.period' },
+    { attr: 'repetition.day' },
+    { attr: 'ending.condition' },
+    { attr: 'ending.occurrences' },
+    { attr: 'ending.date' },
+    { attr: 'ending.condition' },
+    { attr: 'additional_one_time_payment.amount' },
+    { attr: 'additional_one_time_payment.metadata' },
+    { attr: 'additional_one_time_payment.note' },
+    { attr: 'additional_one_time_payment.expiry' },
+    { attr: 'additional_one_time_payment.constraints.minimum_card_amount' },
   ])(
-    'updates the $name value when the $attr attribute changes',
-    ({ attr, name }) => {
+    'updates the corresponding value when the $attr attribute changes',
+    ({ attr }) => {
+      const name = formatName(attr);
       const originalValue = randomUUID();
       const element = createElement('subscription', { [attr]: originalValue });
       expect(getInputValue(element, name)).toBe(originalValue);
@@ -181,6 +167,41 @@ describe('PpSubscription', () => {
 
       expect(getInputValue(element, name)).not.toBe(originalValue);
       expect(getInputValue(element, name)).toBe(newValue);
+    }
+  );
+
+  it.each([
+    { attr: 'token' },
+    { attr: 'amount' },
+    { attr: 'metadata' },
+    { attr: 'urn' },
+    { attr: 'email' },
+    { attr: 'note' },
+    { attr: 'repetition.granularity' },
+    { attr: 'repetition.period' },
+    { attr: 'repetition.day' },
+    { attr: 'ending.condition' },
+    { attr: 'ending.occurrences' },
+    { attr: 'ending.date' },
+    { attr: 'ending.condition' },
+    { attr: 'additional_one_time_payment.amount' },
+    { attr: 'additional_one_time_payment.metadata' },
+    { attr: 'additional_one_time_payment.note' },
+    { attr: 'additional_one_time_payment.expiry' },
+    { attr: 'additional_one_time_payment.constraints.minimum_card_amount' },
+  ])(
+    'removes the $attr attribute ',
+
+    ({ attr }) => {
+      const name = formatName(attr);
+      const originalValue = randomUUID();
+      const element = createElement('subscription', {
+        [attr]: originalValue,
+      });
+      expect(getInputValue(element, name)).toBe(originalValue);
+
+      element.removeAttribute(attr);
+      expect(getInputValue(element, name)).toBeUndefined();
     }
   );
 

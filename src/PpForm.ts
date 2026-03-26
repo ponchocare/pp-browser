@@ -20,12 +20,36 @@ export abstract class PpForm extends HTMLElement {
     this.attachShadow({ mode: 'open' });
   }
 
+  public setAttribute(name: string, value: string): void {
+    super.setAttribute(name, value);
+    this.syncAttributes();
+  }
+
+  public removeAttribute(name: string): void {
+    super.removeAttribute(name);
+    this.syncAttributes();
+  }
+
   private getAttributeWithFallback(name: string, fallback: string): string {
     return this.getAttribute(name) ?? fallback;
   }
 
   private isAttributeSet(name: string): boolean {
     return this.getAttributeWithFallback(name, '').length > 0;
+  }
+
+  private syncField(form: HTMLFormElement, name: string, field: Field): void {
+    if (field.type === 'array') {
+      Object.entries(field.schema ?? {}).forEach(([subName, subField]) => {
+        const regex = new RegExp(`^${name}\\.\\d+\\.${subName}(\\.|$)`);
+        Array.from(this.attributes)
+          .filter(attribute => regex.test(attribute.name))
+          .forEach(attribute => this.syncField(form, attribute.name, subField));
+      });
+    } else if (this.hasAttribute(name)) {
+      const value = this.getAttribute(name)!;
+      createInputsForField(form, name, value, field.type);
+    }
   }
 
   private syncAttributes(): void {
@@ -36,30 +60,9 @@ export abstract class PpForm extends HTMLElement {
       form.action = joinPaths(base, this.path);
       form.replaceChildren();
 
-      Object.entries(this.fields).forEach(([attribute, field]) => {
-        if (field.type === 'array') {
-          const matchingAttributes = Array.from(this.attributes).filter(attr =>
-            attr.name.startsWith(`${attribute}.`)
-          );
-
-          matchingAttributes.forEach(attr => {
-            const parts = attr.name.split('.');
-            const fieldName = parts[parts.length - 1];
-
-            const subField = field.schema?.[fieldName];
-            if (!subField) return;
-
-            createInputsForField(form, attr.name, attr.value, subField.type);
-          });
-
-          return;
-        }
-
-        if (this.hasAttribute(attribute)) {
-          const attr = this.getAttribute(attribute)!;
-          createInputsForField(form, attribute, attr, field.type);
-        }
-      });
+      Object.entries(this.fields).forEach(([name, field]) =>
+        this.syncField(form, name, field)
+      );
 
       const slot = document.createElement('slot');
       slot.innerHTML = this.label;
@@ -214,9 +217,5 @@ export abstract class PpForm extends HTMLElement {
         return this.validateField(attribute, { type, required, schema });
       }
     );
-  }
-
-  public static get observedAttributes() {
-    return ['base', 'token'];
   }
 }

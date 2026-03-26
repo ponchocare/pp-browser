@@ -22,8 +22,4 @@ export class PpPayment extends PpForm {
   public constructor() {
     super('/api/integration/generic/initiate', 'Pay with PonchoPay', fields);
   }
-
-  public static get observedAttributes() {
-    return [...PpForm.observedAttributes, ...Object.keys(fields)];
-  }
 }

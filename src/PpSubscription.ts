@@ -45,8 +45,4 @@ export class PpSubscription extends PpForm {
       fields
     );
   }
-
-  public static get observedAttributes() {
-    return [...PpForm.observedAttributes, ...Object.keys(fields)];
-  }
 }
