@@ -79,11 +79,20 @@ npm run format
 
 ### Testing the project
 
-To test the project for bugs, run
+To run the unit tests, run
 
 ```bash
-npm run test
+npm run test:unit
 ```
+
+To run the end-to-end tests, run
+
+```bash
+npm run test:e2e
+```
+
+The end-to-end tests use [Playwright](https://playwright.dev/) with Chromium and start their own development server automatically.
+If Chromium has not been installed yet, install it first with `npx playwright install chromium`.
 
 ### Tooling configs
 

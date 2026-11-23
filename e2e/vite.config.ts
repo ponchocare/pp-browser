@@ -32,25 +32,26 @@ function fakePonchoPay(): Plugin {
       return html.replace(/(\sbase=")[^"]*(")/g, '$1/$2');
     },
     configureServer(server) {
-      ENDPOINTS.forEach(endpoint => {
-        server.middlewares.use(endpoint, async (req, res, next) => {
-          if (req.method !== 'POST') {
-            next();
-            return;
-          }
+      // A single unscoped middleware: Connect's `use(route, ...)` matches path
+      // prefixes, which would accept posts to e.g. `<endpoint>/wrong`
+      server.middlewares.use(async (req, res, next) => {
+        const { pathname } = new URL(req.url ?? '/', 'http://localhost');
+        if (req.method !== 'POST' || !ENDPOINTS.includes(pathname)) {
+          next();
+          return;
+        }
 
-          const body = await readBody(req);
-          const fields = Array.from(new URLSearchParams(body).entries());
+        const body = await readBody(req);
+        const fields = Array.from(new URLSearchParams(body).entries());
 
-          res.setHeader('Content-Type', 'application/json; charset=utf-8');
-          res.end(
-            JSON.stringify({
-              endpoint,
-              contentType: req.headers['content-type'] ?? null,
-              fields,
-            })
-          );
-        });
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        res.end(
+          JSON.stringify({
+            endpoint: pathname,
+            contentType: req.headers['content-type'] ?? null,
+            fields,
+          })
+        );
       });
     },
   };
