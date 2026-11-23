@@ -28,12 +28,14 @@
     "clean": "rimraf build dist",
     "start": "npm run clean && tsc --outDir example/dist && concurrently -k -r \"tsc --watch --preserveWatchOutput --outDir example/dist\" \"vite --open\"",
     "build": "npm run clean && tsc && rollup -c",
-    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
     "lint": "eslint --ext .ts,.html . --ignore-path .gitignore && prettier \"**/*.ts\" --check --ignore-path .gitignore",
     "format": "eslint --ext .ts,.html . --fix --ignore-path .gitignore && prettier \"**/*.ts\" --write --ignore-path .gitignore"
   },
   "devDependencies": {
     "@open-wc/eslint-config": "^9.2.1",
+    "@playwright/test": "^1.65.1",
     "@rollup/plugin-terser": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
@@ -86,7 +88,22 @@
       "import/extensions": "off",
       "lines-between-class-members": "off",
       "wc/no-constructor-params": "off"
-    }
+    },
+    "overrides": [
+      {
+        "files": [
+          "e2e/**/*.ts"
+        ],
+        "rules": {
+          "import/no-extraneous-dependencies": [
+            "error",
+            {
+              "devDependencies": true
+            }
+          ]
+        }
+      }
+    ]
   },
   "prettier": {
     "singleQuote": true,
