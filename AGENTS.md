@@ -14,7 +14,7 @@ Vanilla web components library (no Lit/framework) published as `@ponchopay/pp-br
 - `npm run test:e2e` runs Playwright with Chromium only. The first time, run `npx playwright install chromium`. For one test, use `npx playwright test e2e/simple-payment.e2e.ts`.
 - `npm run build` runs `tsc` to `dist/`, then Rollup bundles a minified IIFE to `build/pp-browser.min.js`. That bundle is the CDN asset.
 - Typecheck: `npx tsc --noEmit`. Note that `tsconfig.json` only includes `src/`, so test and e2e files are not typechecked by `tsc`.
-- There is no CI in the repo. The husky v4 pre-commit hook runs lint-staged (`eslint --fix` and `prettier --write` on `*.ts`).
+- CI is `.github/workflows/ci.yml`. It runs on PRs and on pushes to `main`, and runs `npm ci`, lint, unit tests, e2e tests and build, in that order. There are no git hooks, so run `npm run lint` (or `npm run format`) before pushing.
 
 ## Conventions and gotchas
 - Relative imports in `src/` must use `.js` extensions (`./utils.js`), because output is consumed as native ESM. Tests import without extensions.
