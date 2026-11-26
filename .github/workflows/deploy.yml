@@ -1,0 +1,136 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release, as X.Y.Z. Leave empty for the next patch after the newest tag.'
+        required: false
+        default: ''
+
+# Never run two deploys at once: both would try to publish the same version.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: CI
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    name: Release, open ponchopay PR and publish
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write # create the release and its tag
+      id-token: write # npm trusted publishing (OIDC)
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # the version is worked out from the existing tags
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      # Git tags are the source of truth for the version: nothing is committed
+      # back to main, so the version in package.json is only set on the runner.
+      # Only plain X.Y.Z tags count. To skip versions, push a bare tag or pass
+      # the `version` input.
+      - name: Work out the version
+        id: version
+        env:
+          REQUESTED: ${{ inputs.version }}
+        run: |
+          semver='^[0-9]+\.[0-9]+\.[0-9]+$'
+          last=$(git tag --list | grep -E "$semver" | sort -V | tail -n 1)
+          last=${last:-0.0.0}
+
+          if [ -n "$REQUESTED" ]; then
+            if ! [[ "$REQUESTED" =~ $semver ]]; then
+              echo "::error::The requested version '$REQUESTED' is not in X.Y.Z format"
+              exit 1
+            fi
+            newest=$(printf '%s\n%s\n' "$last" "$REQUESTED" | sort -V | tail -n 1)
+            if [ "$REQUESTED" = "$last" ] || [ "$newest" != "$REQUESTED" ]; then
+              echo "::error::The requested version $REQUESTED must be higher than the newest tag ($last)"
+              exit 1
+            fi
+            version="$REQUESTED"
+          else
+            IFS=. read -r major minor patch <<< "$last"
+            version="$major.$minor.$((patch + 1))"
+          fi
+
+          echo "Newest tag: $last. Releasing: $version"
+          npm version "$version" --no-git-tag-version --allow-same-version
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # Creates the tag on the commit being deployed, with notes generated from
+      # the changes since the previous release.
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "$VERSION" \
+            --target "$GITHUB_SHA" \
+            --title "$VERSION" \
+            --generate-notes
+
+      - name: Check out ponchopay
+        uses: actions/checkout@v5
+        with:
+          repository: ponchocare/ponchopay
+          token: ${{ secrets.PONCHOPAY_TOKEN }}
+          path: ponchopay
+
+      - name: Open PR in ponchopay
+        working-directory: ponchopay
+        env:
+          GH_TOKEN: ${{ secrets.PONCHOPAY_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          branch="pp-browser-$VERSION"
+          asset="pp-browser.$VERSION.min.js"
+          page='src/routes/(public)/+page.svelte'
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+
+          cp ../build/pp-browser.min.js "src/be/integration/assets/$asset"
+          sed -E -i "s/pp-browser\.[0-9]+\.[0-9]+\.[0-9]+\.min\.js/$asset/g" "$page"
+          if ! grep -qF "$asset" "$page"; then
+            echo "::error::$page does not reference $asset after the update"
+            exit 1
+          fi
+
+          git add "src/be/integration/assets/$asset" "$page"
+          git commit -m "Update pp-browser to $VERSION"
+          git push origin "$branch"
+
+          gh pr create \
+            --title "Update pp-browser to $VERSION" \
+            --body "Adds \`$asset\` (built from ponchocare/pp-browser@${GITHUB_SHA::7}, released as $VERSION) and points \`$page\` at it. [npm release](https://www.npmjs.com/package/@ponchopay/pp-browser/v/$VERSION)."
+
+      # Last, because an npm version can never be republished. Authenticates
+      # through npm trusted publishing (OIDC), which needs npm 11.5.1 or later.
+      - name: Publish to npm
+        run: |
+          npm --version
+          npm publish --access public
