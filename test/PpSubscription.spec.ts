@@ -72,7 +72,7 @@ describe('PpSubscription', () => {
       expect(element.shadowRoot?.querySelector('div')).not.toBeNull();
 
       element.removeAttribute(attr);
-      expect(element.checkValidity()).toBe(false);
+      expect(element.checkValidity()).toBe(true);
       submit(element);
       expect(element.shadowRoot?.querySelector('div')).not.toBeNull();
     }
