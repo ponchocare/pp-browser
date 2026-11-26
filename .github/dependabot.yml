@@ -1,0 +1,28 @@
+version: 2
+
+updates:
+  # package.json only has devDependencies (the published bundle has no runtime
+  # dependencies), so every update is tooling: lint, unit, e2e and build in CI
+  # catch any breakage.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    versioning-strategy: increase
+    open-pull-requests-limit: 5
+    groups:
+      # Minor and patch updates together in one PR. Majors stay in separate PRs,
+      # since some need code or config changes (e.g. ESLint 9 flat config,
+      # Prettier 3).
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+
+  # Actions used by .github/workflows.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ['*']
