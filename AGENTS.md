@@ -9,7 +9,7 @@ Vanilla web components library (no Lit/framework) published as `@ponchopay/pp-br
 - `example/*.html` are demo pages. They load `dist/src/index.js` relative to `example/`, so they need `tsc --outDir example/dist` first (`npm start` and the e2e server both do this).
 
 ## Commands
-- `npm run lint` runs ESLint (`@open-wc` config, embedded in `package.json`) and a Prettier check. `npm run format` fixes both.
+- `npm run lint` runs ESLint (flat config in `eslint.config.js`, based on `@open-wc/eslint-config` and typescript-eslint, honouring `.gitignore`) and a Prettier check. `npm run format` fixes both.
 - `npm run test:unit` runs Vitest with jsdom on `test/*.spec.ts`. For one file, use `npx vitest run test/utils.spec.ts`.
 - `npm run test:e2e` runs Playwright with Chromium only. The first time, run `npx playwright install chromium`. For one test, use `npx playwright test e2e/simple-payment.e2e.ts`.
 - `npm run build` runs `tsc` to `dist/`, then Rollup bundles a minified IIFE to `build/pp-browser.min.js`. That bundle is the CDN asset.
@@ -20,7 +20,7 @@ Vanilla web components library (no Lit/framework) published as `@ponchopay/pp-br
 
 ## Conventions and gotchas
 - Relative imports in `src/` must use `.js` extensions (`./utils.js`), because output is consumed as native ESM. Tests import without extensions.
-- Prettier settings: single quotes, `arrowParens: "avoid"`. Prettier 2 and ESLint 8 (legacy config), so don't use flat-config or Prettier 3 syntax.
+- Prettier settings: single quotes, `arrowParens: "avoid"`. Prettier 2 and ESLint 10 (flat config only; `.eslintrc`/`eslintConfig` and `--ext`/`--ignore-path` are gone), so don't use Prettier 3 syntax. `@open-wc/eslint-config` registers the import plugin as `import-x/*`.
 - E2E files must be named `*.e2e.ts`. That keeps them out of Vitest and is what Playwright matches.
 - E2E architecture: `e2e/vite.config.ts` serves `example/` on port 8001. It rewrites every `base="..."` attribute in the HTML to `/`, and a fake middleware echoes POSTs to the PonchoPay endpoints back as JSON. `e2e/support.ts` aborts all non-local requests, opens each example from `example/index.html` by link, clicks submit and compares the fields (order-insensitive). Adding an example page means linking it from `example/index.html` and adding a matching `*.e2e.ts` with the exact expected fields. If an endpoint is new, add it to `ENDPOINTS` in `e2e/vite.config.ts`.
 - Locally, Playwright reuses an already-running server on 8001. If you see stale output, stop that server (or rerun `tsc --outDir example/dist`).
