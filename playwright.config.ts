@@ -15,7 +15,7 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command:
-      'tsc --outDir example/dist && vite --config e2e/vite.config.ts --clearScreen false',
+      'npm run tsc -- --outDir example/dist && vite --config e2e/vite.config.ts --clearScreen false',
     url: `http://localhost:${E2E_PORT}`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
